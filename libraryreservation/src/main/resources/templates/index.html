@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ch">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" th:href="@{/static/layui/css/layui.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/static/font-awesome/css/font-awesome.css}"/>
+    <script type="text/javascript" th:src="@{/static/layui/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/static/layui/vue.js}"></script>
+    <script src="//cdn.jsdelivr.net/npm/xgplayer/browser/index.js" type="text/javascript"></script>
+    <!--视频播放组件js-->
+    <title>标题</title>
+    <script th:inline="javascript">
+        var basePath = [[${#httpServletRequest.getScheme() + "://" + #httpServletRequest.getServerName() + ":" + #httpServletRequest.getServerPort() + #httpServletRequest.getContextPath()}]];
+    </script>
+    <style type="text/css">
+        .imgDiv {
+            display: inline-block;
+            position: relative;
+            border: 1px solid #C1C1C1;
+            margin: 5px;
+        }
+        .imgDiv .delete {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<form class="layui-form" id="goodsform" style="margin-top: 10px">
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>商品名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="commname" lay-verify="required" autocomplete="off" placeholder="请输入商品名称"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label"><span style="color: red">*</span>商品描述</label>
+        <div class="layui-input-block">
+            <textarea placeholder="请输入商品描述" name="commdesc" lay-verify="required" autocomplete="off"
+                      class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">商品视频</label>
+        <div class="layui-input-inline">
+            <input type="text" name="videourl" lay-verify="required"
+                   autocomplete="off" class="layui-input" readonly="readonly"
+                   style="cursor:not-allowed;width:220px;display: none" id="videourl">
+            <div id="mse"></div>
+        </div>&nbsp;&nbsp;
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="test1">上传视频</button>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label"><span style="color: red">*</span>商品原价</label>
+        <div class="layui-input-block">
+            <input type="number" name="orimoney" lay-verify="required" autocomplete="off" placeholder="请输入商品原价"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label"><span style="color: red">*</span>商品售价</label>
+        <div class="layui-input-block">
+            <input type="number" name="thinkmoney" lay-verify="required" autocomplete="off" placeholder="请输入商品售价"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>商品类别</label>
+        <div class="layui-input-block">
+            <select name="category" lay-filter="required">
+                <option value="3C数码" selected="">3C数码</option>
+                <option value="书籍">书籍</option>
+                <option value="生活用品">生活用品</option>
+                <option value="服饰">服饰</option>
+                <option value="美妆">美妆</option>
+                <option value="出行">出行</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>常用选项</label>
+        <div class="layui-input-block">
+            <input type="radio" name="common" value="不议价" title="不议价" checked="">
+            <input type="radio" name="common" value="可小刀" title="可小刀">
+            <input type="radio" name="common2" value="可送货" title="可送货" checked="">
+            <input type="radio" name="common2" value="仅自提" title="仅自提">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>商品主图</label>
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="test2">上传主图</button>
+        </div>
+    </div>
+    <div id="mainimage" style="display: none;margin-top:0px">
+        <img :src="mainimg" style="width:300px;height:200px;cursor: pointer" id="imageurl"
+             @click="openimg(mainimg)">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"><span style="color: red">*</span>商品其他图</label>
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="test3">上传其他图（最多3张）</button>
+        </div>
+    </div>
+    <div id="otherimages" style="margin-top:0px;display: none">
+        <div class="imgDiv" v-for="(img,index) in listimages"
+             :key="index" :id="'img'+index" @mouseover="mouseOver(index)" @mouseleave="mouseLeave(index)">
+            <img :src="img.imgsrc" style="width:300px;height:200px;cursor: pointer" @click="openimg(img.imgsrc)">
+            <img src="https://img-blog.csdnimg.cn/20191230200647337.png" class="delete"
+                 @click="delimage(index)" :id="'del'+index" style="cursor: pointer">
+        </div>
+    </div>
+</form>
+</body>
+<script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#goodsform',
+        data() {
+            return {
+                listimages: [],
+                mainimg:""
+            }
+        },
+        mounted: function () {
+            window.showlistimages = this.showlistimages;
+            window.setmainimgurl = this.setmainimgurl;
+        },
+        methods: {
+            showlistimages: function (imgurl) {
+                var that = this;
+                if(that.listimages.length!==3){
+                    var object = new Object();
+                    object["imgsrc"] = imgurl;
+                    that.listimages.push(object);//向vue数组中添加图片
+                }
+            },setmainimgurl: function (imgurl) {
+                var that = this;
+                that.mainimg=imgurl;
+            },delimage:function (ids) {
+                var that = this;
+                that.listimages.splice(ids,1);//从vue数组中删除此图
+            },mouseOver:function (id) {
+                $("#del"+id).show();
+            },mouseLeave:function (id) {
+                $("#del"+id).hide();
+            },openimg:function (imgsrc) {
+                var img = '<img src="'+imgsrc+'" style="width:100%;height:100%">'
+                layer.open({
+                    type: 1,
+                    title: false,
+                    shade: 0.6,
+                    closeBtn: 0, //不显示关闭按钮
+                    anim: 2,
+                    shadeClose: true, //开启遮罩关闭
+                    content: img
+                });
+            }
+        }
+    });
+    let player=null;
+    layui.use(['form', 'upload', 'element'], function () {
+        var upload = layui.upload;
+        var element = layui.element;
+        upload.render({
+            elem: '#test3'
+            , url: basePath + '/relgoods/images'
+            , accept: 'images' //图片
+            , size: 1024 * 20
+            , exts: 'png|jpg'
+            , multiple: true
+            , number: 3
+            , choose: function (obj) {
+                //上传前判断已经上传了多少张图片
+                var imgs = document.getElementById("otherimages").getElementsByTagName("img");
+                if (imgs.length === 6) {
+                    layer.msg('最多上传三张图片');
+                    layer.close(obj);//报错让其停止上传
+                }
+            }
+            , progress: function (n) {
+                var percent = n + '%';
+                layer.msg(percent, {
+                    icon: 16
+                    , shade: 0.01
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                } else {
+                    layer.closeAll('loading');
+                    layer.msg('上传成功', {
+                        time: 1000,
+                        icon: 1,
+                        offset: '150px'
+                    });
+                    showlistimages(res.data.src[0]);
+                    $("#otherimages").show();
+                }
+            }
+            , error: function () {
+                layer.closeAll('loading');
+                layer.msg('上传失败', {
+                    time: 1000,
+                    icon: 2,
+                    offset: '150px'
+                });
+            }
+        });
+        upload.render({
+            elem: '#test2'
+            , url: basePath + '/relgoods/video'
+            , accept: 'images' //图片
+            , size: 1024 * 20
+            , exts: 'png|jpg'
+            , progress: function (n) {
+                var percent = n + '%'; //获取进度百分比
+                layer.msg(percent, {
+                    icon: 16
+                    , shade: 0.01
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                } else {
+                    layer.closeAll('loading');
+                    layer.msg('上传成功', {
+                        time: 1000,
+                        icon: 1,
+                        offset: '150px'
+                    });
+                    setmainimgurl(res.data.src);
+                    $("#mainimage").show();
+                }
+            }
+            , error: function () {
+                layer.closeAll('loading');
+                layer.msg('上传失败', {
+                    time: 1000,
+                    icon: 2,
+                    offset: '150px'
+                });
+            }
+        });
+        var uploadInst = upload.render({
+            elem: '#test1'
+            , url: basePath + '/relgoods/video'
+            , accept: 'video' //视频
+            , size: 1024 * 400
+            , exts: 'mp4'
+            , progress: function (n) {
+                var percent = n + '%'; //获取进度百分比
+                layer.msg(percent, {
+                    icon: 16
+                    , shade: 0.01
+                });
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                } else {
+                    layer.closeAll('loading');
+                    layer.msg('上传成功', {
+                        time: 1000,
+                        icon: 1,
+                        offset: '150px'
+                    });
+                    $("#videourl").val(res.data.src);
+                    player = new Player({
+                        id: 'mse',
+                        url: basePath+res.data.src,
+                        width: 600,
+                        height: 337.5
+                    });
+                }
+            }
+            , error: function () {
+                layer.closeAll('loading');
+                layer.msg('上传失败', {
+                    time: 1000,
+                    icon: 2,
+                    offset: '150px'
+                });
+            }
+        });
+    });
+</script>
+</html>

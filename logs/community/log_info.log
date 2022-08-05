@@ -1,0 +1,7 @@
+2022-08-05 14:51:06,255 INFO [main] c.n.c.LoggerTests [StartupInfoLogger.java:50] Starting LoggerTests on DESKTOP-KTPDAFN with PID 10856 (started by sibuqiao in C:\Users\sibuqiao\IdeaProjects\community)
+2022-08-05 14:51:06,260 INFO [main] c.n.c.LoggerTests [SpringApplication.java:675] No active profile set, falling back to default profiles: default
+2022-08-05 14:51:12,183 INFO [main] o.s.s.c.ThreadPoolTaskExecutor [ExecutorConfigurationSupport.java:171] Initializing ExecutorService 'applicationTaskExecutor'
+2022-08-05 14:51:13,185 INFO [main] o.s.b.a.w.s.WelcomePageHandlerMapping [WelcomePageHandlerMapping.java:61] Adding welcome page template: index
+2022-08-05 14:51:14,211 INFO [main] c.n.c.LoggerTests [StartupInfoLogger.java:59] Started LoggerTests in 9.45 seconds (JVM running for 12.059)
+2022-08-05 14:51:14,970 INFO [main] c.n.c.LoggerTests [LoggerTests.java:23] info log
+2022-08-05 14:51:14,989 INFO [Thread-3] o.s.s.c.ThreadPoolTaskExecutor [ExecutorConfigurationSupport.java:208] Shutting down ExecutorService 'applicationTaskExecutor'
